@@ -1,21 +1,24 @@
 # The server is multi-threaded since it has to manage multiple clients
 import socket
+import getch
 
 # server configuration #
 TEAM_NAME = '-!-!-Rotem-&-Dana-!-!-'
 HOST = '127.0.0.4'  # Standard loopback interface address (localhost)
 SERVER_PORT = 13117       # Port to listen on (non-privileged ports are > 1023)
+BROADCAST = "255.255.255.255"
+OFFER_TIMEOUT = 1        # the server send udp broadcast every 1 sec
 
 class Server:
     server_socket = None
 
     def __init__(self):
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP))
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)# Enable broadcasting mode
         self.server_socket.bind(("", SERVER_PORT))
 
-    def talkToClient(self, user_message: message.Message, ip, start_time):
-            server_response = self.process_message(user_message, user_message.length, start_time)
-            self.server_socket.sendto(server_response, ip)
+
 
     # 1. sending out offer messages 
     # 2. responding to request messages
@@ -23,10 +26,18 @@ class Server:
     # - leave this state after 10 seconds.
     def waiting_for_clients():
         print('Server started,listening on IP address 172.1.0.4...')
+        # 1. sending out offer messages
+        message = b"offer"
         while True:
-            msg, client = self.server_socket.recvfrom(SERVER_PORT)
-            decoded_msg =encoder_decoder.decode(msg)
-            if decoded_msg.type == 2:
+            decode_msg = struct.pack('ccccc', 'd'.encode('ascii'), 'a'.encode('ascii'))  
+            self.server_socket.sendto(message, (BROADCAST, 37020))
+            print("offer sent!")
+
+
+        while True:
+            message, client = self.server_socket.recvfrom(SERVER_PORT)
+            decoded_message =encoder_decoder.decode(message)
+            if decoded_message.type == 2:
                 print('sent: offer')
             t = threading.Thread(target=self.talkToClient, args=(decoded_msg, client, time.time()))
             t.start()
@@ -39,7 +50,9 @@ class Server:
 
 
 if __name__ == "__main__":
-    server = Server()
+      server = Server()
+      server.waiting_for_clients()
+
     
 
 
