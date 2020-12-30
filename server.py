@@ -12,7 +12,6 @@ client_list_thread = []
 
 class Server:
     # server configuration #
-    TEAM_NAME = '-!-!-Rotem-&-Dana-!-!-'
     SERVER_PORT = 13117       # Port to listen on (non-privileged ports are > 1023)
     OFFER_TIMEOUT = 1        # the server send udp broadcast every 1 sec
     tcp_port=40440

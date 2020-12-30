@@ -29,7 +29,7 @@ class Client:
     # leave this state when you get an offer message
     def wait_for_server_offer(self):
         #while True:
-        data, addr = self.client_socket_udf.recvfrom(16)
+        data, addr = self.client_socket_udf.recvfrom(8)
         self.serverIP = addr[0]
         cookie, msg_type, tcp_port_number = struct.unpack('IBH', data)
         if cookie == 0xfeedbeef and msg_type == 0x2 and tcp_port_number > 0:
