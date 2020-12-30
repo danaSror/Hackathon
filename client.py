@@ -2,16 +2,19 @@
 import socket
 import struct
 import threading
-from pynput.keyboard import Listener
-# from curtsies import Input
+import os
+os.system("")
+from keyBoard import Keyboard
 
 
 class Client:
 
+
     # client configuration #                     
-    SERVER_PORT = 13117                     # The port used by the server
+    SERVER_PORT = 13117                     
     client_connection_list = []
-    buffer = 4096 
+    buffer = 4096
+    is_thread_terminated = False 
 
     def __init__(self,teamName):
         self.TEAM_NAME = teamName + '\n'
@@ -22,53 +25,91 @@ class Client:
         self.client_socket_udf.bind(("", Client.SERVER_PORT))
         # TCP
         self.conn_tcp = None
+        self.serverIP = None
+        self.serverTcpPort = None
     
     # leave this state when you get an offer message
     def wait_for_server_offer(self):
-        print("Client started, listening for offer requests...")
-        while True:
-            data, addr = self.client_socket_udf.recvfrom(Client.buffer)
-            cookie, msg_type, tcp_port_number = struct.unpack('IBH', data)
-            if cookie == 0xfeedbeef and msg_type == 0x2 and tcp_port_number > 0:
-               print(f"Received offer from {addr[0]}, attempting to connect...")
-               tcp_server_port = int(tcp_port_number)
-               server_ip = addr[0]
-               tcp_thread = threading.Thread(target=self.execute_tcp_connection, args=(server_ip, tcp_server_port, self.TEAM_NAME )) #,name='TCP client')
-               tcp_thread.start()
-             
-        
-
-    def execute_tcp_connection(self,host_ip, tcp_server_port, team_name):
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-                self.conn_tcp = client_socket
-                Client.client_connection_list.append(client_socket)
-                print("1")
-                client_socket.connect((host_ip, tcp_server_port))
-                print("2")
-                #client_socket.sendall(team_name.encode('utf-8'))
-                client_socket.sendto(team_name.encode('utf-8'),(host_ip,tcp_server_port))
-                print("3")
-                while True:
-                    data_from_server = client_socket.recv(Client.buffer)
-                    print("4")
-                    print(data_from_server.decode('utf-8'))
-                    # self.game_mode()
-        except:
-            print("Server disconnected, listening for offer requests...")
-            Client.client_connection_list.clear()
-            self.wait_for_server_offer()
-
+        #while True:
+        data, addr = self.client_socket_udf.recvfrom(16)
+        self.serverIP = addr[0]
+        cookie, msg_type, tcp_port_number = struct.unpack('IBH', data)
+        if cookie == 0xfeedbeef and msg_type == 0x2 and tcp_port_number > 0:
+            print(f"Received offer from {addr[0]}, attempting to connect...")
+            self.serverTcpPort = int(tcp_port_number)
+            
+            #tcp_thread = threading.Thread(target=self.execute_tcp_connection, args=(server_ip, tcp_server_port, self.TEAM_NAME )) #,name='TCP client')
+            data_press_thread = threading.Thread(target=self.on_press) #,name='TCP client')
+            self.execute_tcp_connection(data_press_thread)
               
+    def execute_tcp_connection(self,data_press_thread):
+        Client.is_thread_terminated = False
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            self.conn_tcp = client_socket
+            Client.client_connection_list.append(client_socket)
+            try:
+                client_socket.connect((self.serverIP, self.serverTcpPort))
+            except:
+                print("Connection failed")
+                self.reset_all_clients()
+            try:    
+                client_socket.sendto(self.TEAM_NAME.encode('utf-8'),(self.serverIP, self.serverTcpPort))
+            except:
+                print("Attempt to send data failed")
+                self.reset_all_clients()
 
-    # collect characters from the keyboard and send them over TCP. collect data from the network and print it onscreen
-    # def game_mode(self):
-    #     listener = Listener(on_press=on_press)
-    #     listener.start()
+            # welcome message
+            try: 
+                data_from_server = client_socket.recv(Client.buffer)
+                print(data_from_server.decode('utf-8'))
+            except:
+                print("Server disconnected, listening for offer requests...")
+                #self.game_mode()
+                self.reset_all_clients()
+            # after the welcome message the game is starting    
+            data_press_thread.start()
 
+            # game over massage
+            try:  
+                data_from_server = client_socket.recv(Client.buffer)
+                print(data_from_server.decode('utf-8'))
+            except:
+                print("Server disconnected, listening for offer requests...")
+                #self.game_mode()
+                data_press_thread.join()
+                self.reset_all_clients()
+            Client.is_thread_terminated = True
+            data_press_thread.join()
+            
+        
+        print("Server disconnected, listening for offer requests...")
+        self.reset_all_clients()
+
+    def on_press(self):
+        keyBoard = Keyboard()
+        while True:
+            if  Client.is_thread_terminated:
+                break
+            try:
+                if keyBoard.is_press():
+                    try:
+                        self.conn_tcp.sendto(str(keyBoard.get_char).encode('utf-8'),(self.serverIP, self.serverTcpPort))         
+                    except:
+                        print(f"Server closed socket - {self.conn_tcp}")
+                        break
+            except:
+                break
+       
+    def reset_all_clients(self):
+        Client.client_connection_list.clear()
+        self.wait_for_server_offer()
         
 
 
 if __name__ == "__main__":
-    client = Client('-!-!-Rotem-&-Dana-!-!-')
+    print("Client started, listening for offer request...")
+    client = Client('Dana&Rotem')
     client.wait_for_server_offer()
+
+
+
