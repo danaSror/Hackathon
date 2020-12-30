@@ -8,9 +8,9 @@ import struct
 from threading import Thread
 import threading
 
-global glob_connections_counter  #   TODO change names of boris
-glob_connections_counter = 0  #   TODO change names of boris
-client_list_thread = [] #   TODO change names of boris
+global glob_connections_counter  
+glob_connections_counter = 0  
+client_list_thread = [] 
 
 class Server:
     # server configuration #
@@ -19,7 +19,7 @@ class Server:
     OFFER_TIMEOUT = 1        # the server send udp broadcast every 1 sec
     tcp_port=40440
     IP = socket.gethostbyname(socket.gethostname())
-    buffer = 4096 #   TODO change names of boris
+    buffer = 4096 
 
 
     def __init__(self):
