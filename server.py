@@ -1,9 +1,7 @@
 # The server is multi-threaded since it has to manage multiple clients
 import socket
 #import getch
-import message
 import time
-import msg_utils
 import struct
 from threading import Thread
 import threading
@@ -38,10 +36,14 @@ class Server:
         self.group_1_keyboard = {}
         self.group_2_keyboard = {}
 
-      udp = threading.Thread(target=server.execute_udp_connection,args=(tcp), daemon=True)
+    def start(self):
+        self.clear_all()
+        tcp = threading.Thread(target=self.execute_tcp_connection, name='TCP server')#, name='TCP server')
+        udp = threading.Thread(target=self.execute_udp_connection,args=(tcp,), name='UDP server')
+        udp.start()
     
     def execute_udp_connection(self,tcp_thread):
-        self.clear_all()
+        print("3")
         print('Server started,listening on IP address {}...'.format(server.IP))
         tcp_thread.start()
         while True:
@@ -176,12 +178,10 @@ class Server:
        
 
 if __name__ == "__main__":
-      server = Server()
-
-      tcp = threading.Thread(target=server.execute_tcp_connection)#, name='TCP server')
-      udp = threading.Thread(target=server.execute_udp_connection,args=(tcp), daemon=True)
-
-      udp.start()
+    server = Server()
+    server.start()
+      
+   
     #   tcp.start()
 
     #   udp.join()

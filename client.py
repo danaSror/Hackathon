@@ -8,8 +8,6 @@ from keyBoard import Keyboard
 
 
 class Client:
-
-
     # client configuration #                     
     SERVER_PORT = 13117                     
     client_connection_list = []
@@ -39,7 +37,7 @@ class Client:
             self.serverTcpPort = int(tcp_port_number)
             
             #tcp_thread = threading.Thread(target=self.execute_tcp_connection, args=(server_ip, tcp_server_port, self.TEAM_NAME )) #,name='TCP client')
-            data_press_thread = threading.Thread(target=self.on_press) #,name='TCP client')
+            data_press_thread = threading.Thread(target=self.on_press,name='TCP client')
             self.execute_tcp_connection(data_press_thread)
               
     def execute_tcp_connection(self,data_press_thread):
@@ -51,12 +49,12 @@ class Client:
                 client_socket.connect((self.serverIP, self.serverTcpPort))
             except:
                 print("Connection failed")
-                self.reset_all_clients()
+                self.reset_client()
             try:    
                 client_socket.sendto(self.TEAM_NAME.encode('utf-8'),(self.serverIP, self.serverTcpPort))
             except:
                 print("Attempt to send data failed")
-                self.reset_all_clients()
+                self.reset_client()
 
             # welcome message
             try: 
@@ -65,7 +63,7 @@ class Client:
             except:
                 print("Server disconnected, listening for offer requests...")
                 #self.game_mode()
-                self.reset_all_clients()
+                self.reset_client()
             # after the welcome message the game is starting    
             data_press_thread.start()
 
@@ -77,13 +75,13 @@ class Client:
                 print("Server disconnected, listening for offer requests...")
                 #self.game_mode()
                 data_press_thread.join()
-                self.reset_all_clients()
+                self.reset_client()
             Client.is_thread_terminated = True
             data_press_thread.join()
             
         
         print("Server disconnected, listening for offer requests...")
-        self.reset_all_clients()
+        self.reset_client()
 
     def on_press(self):
         keyBoard = Keyboard()
@@ -100,7 +98,7 @@ class Client:
             except:
                 break
        
-    def reset_all_clients(self):
+    def reset_client(self):
         Client.client_connection_list.clear()
         self.wait_for_server_offer()
         
