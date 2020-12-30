@@ -11,7 +11,7 @@ class Client:
     # client configuration #                     
     SERVER_PORT = 13117                     # The port used by the server
     client_connection_list = []
-    buffer = 4096 #   TODO change names of boris
+    buffer = 4096 
 
     def __init__(self,teamName):
         self.TEAM_NAME = teamName + '\n'
