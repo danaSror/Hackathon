@@ -13,8 +13,8 @@ client_list_thread = []
 class Server:
     # server configuration #
     SERVER_PORT = 13117       # Port to listen on (non-privileged ports are > 1023)
-    tcp_port = 40440
-    IP = socket.gethostbyname(socket.gethostname())
+    tcp_port = 40440          # port for tcp connection 
+    IP = socket.gethostbyname(socket.gethostname()) # he server IP address
     tcp_buffer = 4096
     GAME_TIME = 10
     OFFER_TIME = 10
@@ -115,7 +115,6 @@ class Server:
         message_to_send = "Game over!\n" + "Group 1 typed in {} characters. Group 2 typed in {} characters.\n".format(self.score_for_group_1,self.score_for_group_2)
         message_to_send += "Group {} wins!\n\n".format(winners) +  "Congratulation to the winners:\n"      
         message_to_send +=  "{}".format(teams_name)
-
         self.send_winning_msg(message_to_send)         
 
     def send_winning_msg(self,msg):
@@ -126,7 +125,7 @@ class Server:
         """
         all_teams = self.group_1 + self.group_2
         for team in all_teams:
-            if team[2]: # 2 represent the index of the team connection
+            if team[2]: # [2] represent the index of the team connection
                 try:
                     team[2].sendall(msg.encode('utf-8'))
                     team[2].close()
@@ -152,7 +151,7 @@ class Server:
 
             all_teams = self.group_1 + self.group_2
             for team in all_teams:
-                team[2].sendall(welcome_message.encode('utf-8')) # 2 represent the connection of client
+                team[2].sendall(welcome_message.encode('utf-8')) # [2] represent the connection of client
 
     def clear_all(self):
         """
@@ -176,7 +175,6 @@ class Server:
         :param : 
         :return
         """
-
         global glob_connections_counter
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
             self.conn_tcp = server
