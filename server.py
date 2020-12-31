@@ -43,8 +43,8 @@ class Server:
         self.group_2_keyboard = {}
 
     def start(self):
-         """
-         This function start the server via udp and tcp connection
+        """
+        This function start the server via udp and tcp connection
         :param 
         :return
         """
@@ -54,7 +54,7 @@ class Server:
         udp.start()
     
     def execute_udp_connection(self,tcp_thread):
-         """
+        """
         This function execute the udp connection between the srver and client
         :param : tcp_thread
         :return
@@ -138,19 +138,19 @@ class Server:
         :param : is_game_started - flag
         :return
         """
-            if not is_game_started:
-                welcome_message = "Welcome to Keyboard Spamming Battle Royale.\n"
-                welcome_message += 'Group 1:\n==\n'
-                for team in self.group_1:
-                    welcome_message += team[0] # concatenate the team name
-                welcome_message += 'Group 2:\n==\n'
-                for team in self.group_2:
-                    welcome_message += team[0] # concatenate the team name
-                welcome_message += 'Start pressing keys on your keyboard as fast as you can!!'
+        if not is_game_started:
+            welcome_message = "Welcome to Keyboard Spamming Battle Royale.\n"
+            welcome_message += 'Group 1:\n==\n'
+            for team in self.group_1:
+                welcome_message += team[0] # concatenate the team name
+            welcome_message += 'Group 2:\n==\n'
+            for team in self.group_2:
+                welcome_message += team[0] # concatenate the team name
+            welcome_message += 'Start pressing keys on your keyboard as fast as you can!!'
 
-                all_teams = self.group_1 + self.group_2
-                for team in all_teams:
-                    team[2].sendall(welcome_message.encode('utf-8')) # 2 represent the connection of client
+            all_teams = self.group_1 + self.group_2
+            for team in all_teams:
+                team[2].sendall(welcome_message.encode('utf-8')) # 2 represent the connection of client
 
     def clear_all(self):
         """
