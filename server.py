@@ -4,7 +4,6 @@ import time
 import struct
 from threading import Thread
 import threading
-from scapy.arch import get_if_addr
 
 
 global glob_connections_counter, client_list_thread  
@@ -33,7 +32,6 @@ class Server:
         """
         # UDP
         self.server_socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) #, socket.IPPROTO_UDP)
-        self.server_socket_udp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         self.server_socket_udp.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1) # Enable broadcasting mode
         
         #TCP

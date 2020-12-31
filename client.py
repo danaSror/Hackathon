@@ -23,7 +23,6 @@ class Client:
         self.TEAM_NAME = teamName + '\n'
         # UDP
         self.client_socket_udf = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) # UDP
-       # self.client_socket_udf.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         self.client_socket_udf.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1) #  Enable broadcasting mode
         self.client_socket_udf.bind(("", Client.SERVER_PORT))
         # TCP
