@@ -4,6 +4,8 @@ import time
 import struct
 from threading import Thread
 import threading
+from scapy.arch import get_if_addr
+
 
 global glob_connections_counter, client_list_thread  
 glob_connections_counter = 0  
@@ -19,6 +21,8 @@ class Server:
     OFFER_TIME = 10
     ONE_SEC = 1
     MIN_GAME_PLAYERS = 2
+    SUB_NET = 'eth1'
+
     
     
 

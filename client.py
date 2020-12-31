@@ -12,7 +12,7 @@ class Client:
     SERVER_PORT = 13117                     
     client_connection_list = []
     tcp_buffer = 4096
-    udp_buffer = 8
+    buffer = 16
     is_thread_terminated = False 
 
     def __init__(self,teamName):
@@ -38,7 +38,7 @@ class Client:
         :param 
         :return
         """
-        data, addr = self.client_socket_udf.recvfrom(Client.udp_buffer)
+        data, addr = self.client_socket_udf.recvfrom(Client.buffer)
         cookie, msg_type, tcp_port_number = struct.unpack('IBH', data)
         self.serverIP = addr[0]
         self.serverTcpPort = int(tcp_port_number)
