@@ -11,14 +11,15 @@ class Client:
     # client configuration #                     
     SERVER_PORT = 13117                     
     client_connection_list = []
-    buffer = 4096
+    tcp_buffer = 4096
+    udp_buffer = 8
     is_thread_terminated = False 
 
     def __init__(self,teamName):
         self.TEAM_NAME = teamName + '\n'
         # UDP
         self.client_socket_udf = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) # UDP
-        #self.client_socket_udf.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+       # self.client_socket_udf.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         self.client_socket_udf.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1) #  Enable broadcasting mode
         self.client_socket_udf.bind(("", Client.SERVER_PORT))
         # TCP
@@ -29,12 +30,12 @@ class Client:
     # leave this state when you get an offer message
     def wait_for_server_offer(self):
         #while True:
-        data, addr = self.client_socket_udf.recvfrom(8)
-        self.serverIP = addr[0]
+        data, addr = self.client_socket_udf.recvfrom(Client.udp_buffer)
         cookie, msg_type, tcp_port_number = struct.unpack('IBH', data)
+        self.serverIP = addr[0]
+        self.serverTcpPort = int(tcp_port_number)
         if cookie == 0xfeedbeef and msg_type == 0x2 and tcp_port_number > 0:
             print(f"Received offer from {addr[0]}, attempting to connect...")
-            self.serverTcpPort = int(tcp_port_number)
             
             #tcp_thread = threading.Thread(target=self.execute_tcp_connection, args=(server_ip, tcp_server_port, self.TEAM_NAME )) #,name='TCP client')
             data_press_thread = threading.Thread(target=self.on_press,name='TCP client')
@@ -58,22 +59,20 @@ class Client:
 
             # welcome message
             try: 
-                data_from_server = client_socket.recv(Client.buffer)
+                data_from_server = client_socket.recv(Client.tcp_buffer)
                 print(data_from_server.decode('utf-8'))
             except:
                 print("Server disconnected, listening for offer requests...")
-                #self.game_mode()
                 self.reset_client()
             # after the welcome message the game is starting    
             data_press_thread.start()
 
             # game over massage
             try:  
-                data_from_server = client_socket.recv(Client.buffer)
+                data_from_server = client_socket.recv(Client.tcp_buffer)
                 print(data_from_server.decode('utf-8'))
             except:
                 print("Server disconnected, listening for offer requests...")
-                #self.game_mode()
                 data_press_thread.join()
                 self.reset_client()
             Client.is_thread_terminated = True
@@ -106,8 +105,11 @@ class Client:
 
 if __name__ == "__main__":
     print("Client started, listening for offer request...")
-    client = Client('Dana&Rotem')
-    client.wait_for_server_offer()
+    client = Client('555')
+    
 
+    client.wait_for_server_offer()
+    
+    
 
 
