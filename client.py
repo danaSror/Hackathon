@@ -16,6 +16,10 @@ class Client:
     is_thread_terminated = False 
 
     def __init__(self,teamName):
+        """
+        :param 
+        :return
+        """
         self.TEAM_NAME = teamName + '\n'
         # UDP
         self.client_socket_udf = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) # UDP
@@ -27,21 +31,28 @@ class Client:
         self.serverIP = None
         self.serverTcpPort = None
     
-    # leave this state when you get an offer message
     def wait_for_server_offer(self):
-        #while True:
+        """
+        This function wait to get connections offer from server
+        leave this state when you get an offer message and start communicate via tcp connection
+        :param 
+        :return
+        """
         data, addr = self.client_socket_udf.recvfrom(Client.udp_buffer)
         cookie, msg_type, tcp_port_number = struct.unpack('IBH', data)
         self.serverIP = addr[0]
         self.serverTcpPort = int(tcp_port_number)
         if cookie == 0xfeedbeef and msg_type == 0x2 and tcp_port_number > 0:
             print(f"Received offer from {addr[0]}, attempting to connect...")
-            
-            #tcp_thread = threading.Thread(target=self.execute_tcp_connection, args=(server_ip, tcp_server_port, self.TEAM_NAME )) #,name='TCP client')
             data_press_thread = threading.Thread(target=self.on_press,name='TCP client')
             self.execute_tcp_connection(data_press_thread)
               
     def execute_tcp_connection(self,data_press_thread):
+        """
+        This function execute tcp connection between the client and server
+        :param 
+        :return
+        """
         Client.is_thread_terminated = False
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
             self.conn_tcp = client_socket
@@ -83,6 +94,12 @@ class Client:
         self.reset_client()
 
     def on_press(self):
+        """
+        This function get what is the client keyboard press
+        Accepts each character individually
+        :param 
+        :return
+        """
         keyBoard = Keyboard()
         while True:
             if  Client.is_thread_terminated:
@@ -97,7 +114,12 @@ class Client:
             except:
                 break
        
-    def reset_client(self):
+    def reset_client(self): 
+        """
+        This function restart the connection list of clients
+        :param 
+        :return
+        """
         Client.client_connection_list.clear()
         self.wait_for_server_offer()
         
@@ -105,7 +127,7 @@ class Client:
 
 if __name__ == "__main__":
     print("Client started, listening for offer request...")
-    client = Client('555')
+    client = Client('Rotem&Dana')
     
 
     client.wait_for_server_offer()
